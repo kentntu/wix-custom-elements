@@ -28,7 +28,6 @@ class MdOnlineBookingCustomElement extends VueElement {
   attributeChangedCallback(name, _oldValue, newValue) {
     if (name === "data" && newValue) {
       const data = JSON.parse(newValue);
-      console.log("md-online-booking: ", data, this._instance);
       if (this._instance) {
         this.applyData(data);
       } else {
@@ -50,7 +49,6 @@ class MdOnlineBookingCustomElement extends VueElement {
   }
 
   renderBookingComponent(data) {
-    console.log("renderBookingComponent: ", data)
     this.addStyles(data?.publicUrl);
     this.renderRecaptcha(data?.gRecaptchaSiteKey);
   }
@@ -79,7 +77,6 @@ class MdOnlineBookingCustomElement extends VueElement {
 
   renderRecaptcha(siteKey) {
     if (siteKey) {
-      console.log("renderRecaptcha: ", siteKey)
       const container = document.getElementsByClassName(
         "online-booking-container"
       )[0];
