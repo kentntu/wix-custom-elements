@@ -19,7 +19,7 @@ class MdOnlineBookingCustomElement extends VueElement {
   attributeChangedCallback(name, _oldValue, newValue) {
     if (name === "data" && newValue) {
       const data = JSON.parse(newValue);
-      console.log("md-online-booking: ", data);
+      console.log("md-online-booking: ", data, this._instance);
       if (data && this._instance) {
         this._instance.props.title = data.title || "";
         this._instance.props.token = data.token || "";
