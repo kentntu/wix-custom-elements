@@ -11,23 +11,42 @@ class MdOnlineBookingCustomElement extends VueElement {
     return ["data"];
   }
 
+  constructor() {
+    super();
+    this._pendingData = null;
+  }
+
   connectedCallback() {
-    super.connectedCallback();
-    // this.renderBookingComponent();
+    super.connectedCallback(); // rất quan trọng
+    // Nếu có dữ liệu pending, render sau khi instance sẵn sàng
+    if (this._pendingData) {
+      this.applyData(this._pendingData);
+      this._pendingData = null;
+    }
   }
 
   attributeChangedCallback(name, _oldValue, newValue) {
     if (name === "data" && newValue) {
       const data = JSON.parse(newValue);
       console.log("md-online-booking: ", data, this._instance);
-      if (data && this._instance) {
-        this._instance.props.title = data.title || "";
-        this._instance.props.token = data.token || "";
-        this._instance.props.baseUrl = data.baseUrl || "";
-        this._instance.props.siteKey = data.gRecaptchaSiteKey || "";
-        this.renderBookingComponent(data);
+      if (this._instance) {
+        this.applyData(data);
+      } else {
+        // lưu lại để xử lý sau khi mount xong
+        this._pendingData = data;
       }
     }
+  }
+
+
+  applyData(data) {
+    Object.assign(this._instance.props, {
+      title: data.title || "",
+      token: data.token || "",
+      baseUrl: data.baseUrl || "",
+      siteKey: data.gRecaptchaSiteKey || "",
+    });
+    this.renderBookingComponent(data);
   }
 
   renderBookingComponent(data) {
@@ -37,7 +56,7 @@ class MdOnlineBookingCustomElement extends VueElement {
   }
 
   addStyles(publicUrl) {
-    
+
     const link = document.createElement("link");
     link.rel = "stylesheet";
     link.href = publicUrl ? `${publicUrl}/wix-online-booking.css` : cssHref;
