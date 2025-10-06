@@ -36,6 +36,7 @@ class MdOnlineBookingCustomElement extends VueElement {
   }
 
   addStyles(publicUrl) {
+    
     const link = document.createElement("link");
     link.rel = "stylesheet";
     link.href = publicUrl ? `${publicUrl}/wix-online-booking.css` : cssHref;
@@ -58,6 +59,7 @@ class MdOnlineBookingCustomElement extends VueElement {
 
   renderRecaptcha(siteKey) {
     if (siteKey) {
+      console.log("renderRecaptcha: ", siteKey)
       const container = document.getElementsByClassName(
         "online-booking-container"
       )[0];
