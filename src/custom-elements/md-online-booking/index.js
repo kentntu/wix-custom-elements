@@ -13,7 +13,7 @@ class MdOnlineBookingCustomElement extends VueElement {
 
   connectedCallback() {
     super.connectedCallback();
-    this.renderBookingComponent();
+    // this.renderBookingComponent();
   }
 
   attributeChangedCallback(name, _oldValue, newValue) {
@@ -31,6 +31,7 @@ class MdOnlineBookingCustomElement extends VueElement {
   }
 
   renderBookingComponent(data) {
+    console.log("renderBookingComponent: ", data)
     this.addStyles(data?.publicUrl);
     this.renderRecaptcha(data?.gRecaptchaSiteKey);
   }
