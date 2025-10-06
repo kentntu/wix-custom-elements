@@ -1,0 +1,11 @@
+:root {
+  --primary-color: #1677ff;
+  --text-color-on-primary: #ffffff;
+  --text-color: #000000
+}
+
+#md-booking-app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+}

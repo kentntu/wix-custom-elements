@@ -1,0 +1,158 @@
+@import "tailwindcss";
+
+.primary-color {
+  color: var(--primary-color);
+}
+
+.custom-multiselect {
+  border-radius: 0 !important;
+  /* min-height: 42px; */
+}
+
+.custom-multiselect .multiselect__tags {
+  border-radius: 0 !important;
+  @apply bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full;
+  padding-top: 5px;
+  min-height: 42px;
+}
+
+.custom-multiselect .multiselect__content-wrapper {
+  margin-top: 2px;
+}
+
+.custom-multiselect
+  .multiselect__tags
+  .multiselect__tags-wrap
+  .multiselect__tag {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--color-gray-900);
+  padding: 8px 26px 8px 10px;
+  margin-bottom: 0;
+  font-size: var(--text-sm);
+}
+
+.custom-multiselect .multiselect__tags .multiselect__input {
+  margin-top: 5px;
+}
+
+.custom-multiselect
+  .multiselect__tags
+  .multiselect__tags-wrap
+  .multiselect__tag
+  .multiselect__tag-icon {
+  line-height: 28px;
+}
+
+.custom-multiselect
+  .multiselect__tags
+  .multiselect__tags-wrap
+  .multiselect__tag
+  .multiselect__tag-icon::after {
+  @apply text-red-500; 
+}
+
+.custom-multiselect .multiselect__option {
+  font-size: var(--text-sm);
+}
+
+.custom-multiselect .multiselect__option--highlight,
+.custom-multiselect .multiselect__option--highlight::after {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--color-gray-900);
+}
+
+.custom-multiselect .multiselect__option--selected {
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 600;
+  background-color: #e6f4ff;
+}
+
+.custom-multiselect
+  .multiselect__option--selected.multiselect__option--highlight {
+  background: #ff6a6a;
+  color: #fff;
+}
+
+.md-online-booking .button-primary {
+  background-color: var(--primary-color);
+  color: var(--text-color-on-primary);
+}
+
+.md-online-booking .vc-bordered {
+  border-radius: 0 !important;
+}
+
+.md-online-booking .vc-disabled {
+  pointer-events: none;
+}
+
+.custom-input:focus-visible {
+  outline: var(--primary-color) auto 1px;
+  border: 1px solid;
+}
+
+.custom-multiselect .multiselect {
+  @apply border border-gray-300 rounded-md transition;
+}
+.custom-multiselect:focus-within .multiselect {
+  @apply border-blue-500 ring-1 ring-blue-500;
+}
+
+/* .multiselect {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: border 0.2s ease;
+} */
+
+.multiselect.multiselect--active {
+  border-color: #f37d21;
+  box-shadow: 0 0 0 2px #f37d21;
+  border: none;
+}
+
+.required-after::after {
+  display: inline-block;
+  margin-left: 4px;
+  content: "*";
+  font-style: normal;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 16px;
+  vertical-align: middle;
+  display: inline-block;
+  line-height: 1;
+  @apply text-red-500;
+}
+
+.required-before::before {
+  display: inline-block;
+  margin-left: 4px;
+  content: "*";
+  font-style: normal;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 16px;
+  vertical-align: middle; 
+  display: inline-block;
+  line-height: 1;
+  @apply text-red-500;
+}
+
+
+.rc-anchor-error-msg-container {
+  display: none;
+}
+
+.google-recaptcha{
+  width: 100%;
+  height: 100px;
+}
+
+.google-recaptcha #g-recaptcha-container{
+  width: 100%;
+  height: 78px;
+}
+
+.text-color {
+  color: var(--text-color)
+}
