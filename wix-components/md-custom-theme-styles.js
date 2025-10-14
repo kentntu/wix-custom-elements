@@ -38,6 +38,15 @@ class WixCustomThemeStyles extends HTMLElement {
 
   connectedCallback() {
     this.updateTheme();
+    this.interval = setInterval(() => {
+      console.log("running...");
+    }, 2000);
+  }
+
+  disconnectedCallback() {
+    // ✅ clear interval khi element bị remove khỏi DOM
+    clearInterval(this.interval);
+    console.log("Custom Element unmounted");
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
