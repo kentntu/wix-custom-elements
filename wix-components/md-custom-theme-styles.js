@@ -40,6 +40,13 @@ class WixCustomThemeStyles extends HTMLElement {
     this.updateTheme();
   }
 
+  disconnectedCallback() {
+    // ✅ clear interval khi element bị remove khỏi DOM
+    clearInterval(this.interval);
+    console.log("Custom Element unmounted");
+
+  }
+
   attributeChangedCallback(name, oldValue, newValue) {
     console.log("name: ", name, newValue);
     if (name === "theme-data" && oldValue !== newValue) {
@@ -67,6 +74,28 @@ class WixCustomThemeStyles extends HTMLElement {
     try {
       const themeData = JSON.parse(raw);
       applyThemeStyle(themeData);
+
+      this.interval = setInterval(() => {
+        console.log("try to change button style of contact form")
+        const forms = document.querySelectorAll('form');
+        let buttonFound = false;
+
+        forms.forEach(form => {
+          const buttons = form.querySelectorAll('button, input[type="submit"]');
+          if (buttons.length > 0) {
+            buttonFound = true;
+            buttons.forEach(btn => {
+              btn.style.backgroundColor = themeData['primary-color'];
+              btn.style.color = themeData['text-color-on-primary']
+            });
+          }
+        });
+
+        if (buttonFound) {
+          clearInterval(this.interval);
+        }
+      }, 100);
+
     } catch (err) {
       console.error("[md-custom-theme-styles] Invalid theme-data JSON:", err);
     }
