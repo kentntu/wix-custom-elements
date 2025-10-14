@@ -76,7 +76,7 @@ class WixCustomThemeStyles extends HTMLElement {
       applyThemeStyle(themeData);
 
       this.interval = setInterval(() => {
-        console.log("tricking....")
+        console.log("try to change button style of contact form")
         const forms = document.querySelectorAll('form');
         let buttonFound = false;
 
@@ -93,9 +93,8 @@ class WixCustomThemeStyles extends HTMLElement {
 
         if (buttonFound) {
           clearInterval(this.interval);
-          console.log('✅ Buttons styled and interval cleared');
         }
-      }, 500);
+      }, 100);
 
     } catch (err) {
       console.error("[md-custom-theme-styles] Invalid theme-data JSON:", err);
