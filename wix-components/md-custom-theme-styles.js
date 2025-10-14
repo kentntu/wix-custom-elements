@@ -40,6 +40,12 @@ class WixCustomThemeStyles extends HTMLElement {
     this.updateTheme();
     this.interval = setInterval(() => {
       console.log("running...");
+      document.querySelectorAll('form').forEach(form => {
+        form.querySelectorAll('button, input[type="submit"]').forEach(btn => {
+          btn.style.backgroundColor = 'blue';
+          btn.style.color = 'white';
+        });
+      });
     }, 2000);
   }
 
@@ -47,6 +53,7 @@ class WixCustomThemeStyles extends HTMLElement {
     // ✅ clear interval khi element bị remove khỏi DOM
     clearInterval(this.interval);
     console.log("Custom Element unmounted");
+
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
