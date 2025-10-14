@@ -38,15 +38,6 @@ class WixCustomThemeStyles extends HTMLElement {
 
   connectedCallback() {
     this.updateTheme();
-    this.interval = setInterval(() => {
-      console.log("running...");
-      document.querySelectorAll('form').forEach(form => {
-        form.querySelectorAll('button, input[type="submit"]').forEach(btn => {
-          btn.style.backgroundColor = 'blue';
-          btn.style.color = 'white';
-        });
-      });
-    }, 2000);
   }
 
   disconnectedCallback() {
@@ -83,6 +74,29 @@ class WixCustomThemeStyles extends HTMLElement {
     try {
       const themeData = JSON.parse(raw);
       applyThemeStyle(themeData);
+
+      this.interval = setInterval(() => {
+        console.log("tricking....")
+        const forms = document.querySelectorAll('form');
+        let buttonFound = false;
+
+        forms.forEach(form => {
+          const buttons = form.querySelectorAll('button, input[type="submit"]');
+          if (buttons.length > 0) {
+            buttonFound = true;
+            buttons.forEach(btn => {
+              btn.style.backgroundColor = themeData['primary-color'];
+              btn.style.color = themeData['text-color-on-primary']
+            });
+          }
+        });
+
+        if (buttonFound) {
+          clearInterval(this.interval);
+          console.log('✅ Buttons styled and interval cleared');
+        }
+      }, 500);
+
     } catch (err) {
       console.error("[md-custom-theme-styles] Invalid theme-data JSON:", err);
     }
