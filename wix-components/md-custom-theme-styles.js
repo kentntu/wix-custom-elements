@@ -78,17 +78,13 @@ class WixCustomThemeStyles extends HTMLElement {
       if (window.location.href.includes("contact")) {
         this.interval = setInterval(() => {
           console.log("try to change button style of contact form")
-          const forms = document.querySelectorAll('form');
-          let buttonFound = false;
-
-          forms.forEach(form => {
-            const buttons = form.querySelectorAll('button, input[type="submit"]');
-            if (buttons.length > 0) {
+          document.querySelectorAll('.contact-form button').forEach(btn => {
+            const span = btn.querySelector('span');
+            const text = span ? span.textContent : btn.textContent;
+            if (text.trim().toLowerCase() === 'submit') {
               buttonFound = true;
-              buttons.forEach(btn => {
-                btn.style.backgroundColor = themeData['primary-color'];
-                btn.style.color = themeData['text-color-on-primary'];
-              });
+              btn.style.backgroundColor = themeData['primary-color'];
+              btn.style.color = themeData['text-color-on-primary'];
             }
           });
 
