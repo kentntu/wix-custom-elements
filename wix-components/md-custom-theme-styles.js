@@ -75,27 +75,37 @@ class WixCustomThemeStyles extends HTMLElement {
       const themeData = JSON.parse(raw);
       applyThemeStyle(themeData);
 
-      this.interval = setInterval(() => {
-        console.log("try to change button style of contact form")
-        const forms = document.querySelectorAll('form');
-        let buttonFound = false;
+      if (window.location.href.includes("contact")) {
+        this.interval = setInterval(() => {
+          console.log("try to change button style of contact form")
+          const forms = document.querySelectorAll('form');
+          let buttonFound = false;
 
-        forms.forEach(form => {
-          const buttons = form.querySelectorAll('button, input[type="submit"]');
-          if (buttons.length > 0) {
-            buttonFound = true;
-            buttons.forEach(btn => {
-              btn.style.backgroundColor = themeData['primary-color'];
-              btn.style.color = themeData['text-color-on-primary']
-            });
+          forms.forEach(form => {
+            const buttons = form.querySelectorAll('button, input[type="submit"]');
+            if (buttons.length > 0) {
+              buttonFound = true;
+              buttons.forEach(btn => {
+                btn.style.backgroundColor = themeData['primary-color'];
+                btn.style.color = themeData['text-color-on-primary'];
+              });
+            }
+          });
+
+          if (buttonFound) {
+            clearInterval(this.interval);
+            console.log("✅ Found buttons, stopped interval");
           }
-        });
+        }, 100);
 
-        if (buttonFound) {
-          clearInterval(this.interval);
-        }
-      }, 100);
-
+        // 🔒 Dừng interval sau 2 phút nếu vẫn chưa clear
+        setTimeout(() => {
+          if (this.interval) {
+            clearInterval(this.interval);
+            console.warn("⏰ Timeout reached — stopped interval after 2 minutes");
+          }
+        }, 2 * 60 * 1000); // 120000 ms = 2 minutes
+      }
     } catch (err) {
       console.error("[md-custom-theme-styles] Invalid theme-data JSON:", err);
     }
