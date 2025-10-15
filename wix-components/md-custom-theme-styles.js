@@ -78,6 +78,7 @@ class WixCustomThemeStyles extends HTMLElement {
       if (window.location.href.includes("contact")) {
         this.interval = setInterval(() => {
           console.log("try to change button style of contact form")
+          let buttonFound = false
           document.querySelectorAll('.contact-form button').forEach(btn => {
             const span = btn.querySelector('span');
             const text = span ? span.textContent : btn.textContent;
