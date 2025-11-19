@@ -26,7 +26,6 @@ class MdOnlineBookingCustomElement extends HTMLElement {
   }
 
   renderBookingComponent(data = {}) {
-    console.log("md-online-booking: rendering with data", data);
     const base = `${
       data.baseUrl ?? "https://test.mechanicdesk.com.au"
     }/online-booking/index.html`;
