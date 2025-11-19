@@ -20,12 +20,13 @@ class MdOnlineBookingCustomElement extends HTMLElement {
         this.renderBookingComponent(JSON.parse(newValue));
       } catch (err) {
         console.warn("md-online-booking: failed to parse data attribute", err);
+        this.renderBookingComponent();
       }
-      this.renderBookingComponent();
     }
   }
 
   renderBookingComponent(data = {}) {
+    console.log("md-online-booking: rendering with data", data);
     const base = `${
       data.baseUrl ?? "https://test.mechanicdesk.com.au"
     }/online-booking/index.html`;
