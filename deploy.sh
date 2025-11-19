@@ -1,26 +1,59 @@
-#!/bin/bash
-set -e  # Dừng nếu có lỗi
+#!/usr/bin/env bash
+set -euo pipefail
+
+# This script will make the `public` branch contain ONLY the `wix-components`
+# folder as copied from the `main` branch. It creates an orphan `public`
+# branch and force-pushes it. The script will exit if there are uncommitted
+# changes in the working tree to avoid accidental data loss.
 
 BUILD_DIR="wix-components"
+ORIGIN="origin"
+MAIN_BRANCH="main"
+PUBLIC_BRANCH="public"
 
-echo "🏗  Building project..."
-# Nếu bạn có lệnh build, bật dòng dưới:
-# npm run build
+echo "⏳ Fetching latest from remote..."
+git fetch "$ORIGIN"
 
-echo "✅ Commit build vào branch main..."
-git checkout main
-git add $BUILD_DIR
-git commit -m "build: update $BUILD_DIR" || echo "⚠️  Không có thay đổi mới để commit."
-git push origin main
+# Prevent running if there are uncommitted changes
+if [ -n "$(git status --porcelain)" ]; then
+	echo "⚠️  You have uncommitted changes. Please commit or stash them before running this script."
+	exit 1
+fi
 
-echo "🚀 Deploy lên branch public..."
-git checkout public 2>/dev/null || git checkout public
-git checkout main -- $BUILD_DIR
-git add $BUILD_DIR
-git commit -m "deploy: update build from main" || echo "⚠️  Không có thay đổi mới để commit."
-git push origin public
+echo "➡️  Checking out $MAIN_BRANCH and pulling latest..."
+git checkout "$MAIN_BRANCH"
+git pull "$ORIGIN" "$MAIN_BRANCH"
 
-echo "🔙 Quay lại branch main..."
-git checkout main
+if [ ! -d "$BUILD_DIR" ]; then
+	echo "❌ Directory '$BUILD_DIR' does not exist on $MAIN_BRANCH. Aborting."
+	exit 1
+fi
 
-echo "🎉 Deploy completed successfully!"
+echo "➡️  Creating orphan branch '$PUBLIC_BRANCH' containing only $BUILD_DIR..."
+
+# Create orphan branch (no history) and make working tree clean
+git checkout --orphan "$PUBLIC_BRANCH"
+git reset --hard
+
+# Remove all files (both tracked and untracked) to ensure branch contains only BUILD_DIR
+git rm -rf . || true
+git clean -fdx || true
+
+# Bring the folder from main into this orphan branch
+git checkout "$MAIN_BRANCH" -- "$BUILD_DIR"
+
+if [ ! -d "$BUILD_DIR" ]; then
+	echo "❌ Failed to checkout $BUILD_DIR from $MAIN_BRANCH. Aborting."
+	exit 1
+fi
+
+git add "$BUILD_DIR"
+git commit -m "deploy: publish $BUILD_DIR from $MAIN_BRANCH" || true
+
+echo "➡️  Force-pushing $PUBLIC_BRANCH to $ORIGIN (this will overwrite remote $PUBLIC_BRANCH)..."
+git push "$ORIGIN" "$PUBLIC_BRANCH" --force-with-lease
+
+echo "➡️  Returning to $MAIN_BRANCH..."
+git checkout "$MAIN_BRANCH"
+
+echo "🎉 public branch now contains only '$BUILD_DIR' from $MAIN_BRANCH."
