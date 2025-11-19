@@ -29,13 +29,16 @@ if [ ! -d "$BUILD_DIR" ]; then
 	exit 1
 fi
 
-echo "➡️  Creating orphan branch '$PUBLIC_BRANCH' containing only $BUILD_DIR..."
+echo "➡️  Preparing a temporary orphan branch and publishing $BUILD_DIR to $PUBLIC_BRANCH..."
 
-# Create orphan branch (no history) and make working tree clean
-git checkout --orphan "$PUBLIC_BRANCH"
+# Use a temporary orphan branch so we don't accidentally clobber a local 'public' branch
+TMP_BRANCH="${PUBLIC_BRANCH}-deploy-temp-$(date +%s)"
+
+echo "➡️  Creating orphan branch '$TMP_BRANCH'..."
+git checkout --orphan "$TMP_BRANCH"
 git reset --hard
 
-# Remove all files (both tracked and untracked) to ensure branch contains only BUILD_DIR
+# Clean working tree
 git rm -rf . || true
 git clean -fdx || true
 
@@ -44,16 +47,19 @@ git checkout "$MAIN_BRANCH" -- "$BUILD_DIR"
 
 if [ ! -d "$BUILD_DIR" ]; then
 	echo "❌ Failed to checkout $BUILD_DIR from $MAIN_BRANCH. Aborting."
+	# restore main before exiting
+	git checkout "$MAIN_BRANCH" || true
 	exit 1
 fi
 
 git add "$BUILD_DIR"
 git commit -m "deploy: publish $BUILD_DIR from $MAIN_BRANCH" || true
 
-echo "➡️  Force-pushing $PUBLIC_BRANCH to $ORIGIN (this will overwrite remote $PUBLIC_BRANCH)..."
-git push "$ORIGIN" "$PUBLIC_BRANCH" --force-with-lease
+echo "➡️  Force-pushing temporary branch '$TMP_BRANCH' to remote '$PUBLIC_BRANCH' (overwrite)..."
+git push "$ORIGIN" "$TMP_BRANCH:$PUBLIC_BRANCH" --force-with-lease
 
-echo "➡️  Returning to $MAIN_BRANCH..."
+echo "➡️  Cleaning up temporary branch and returning to $MAIN_BRANCH..."
 git checkout "$MAIN_BRANCH"
+git branch -D "$TMP_BRANCH" || true
 
 echo "🎉 public branch now contains only '$BUILD_DIR' from $MAIN_BRANCH."
