@@ -70,7 +70,7 @@ class MdOnlineBookingCustomElement extends HTMLElement {
     container.style.width = "100%";
     container.style.height = "100%";
     container.style.maxWidth = "100%";
-    container.style.minHeight = "900px";
+    container.style.minHeight = "1050px";
     container.style.boxSizing = "border-box";
     container.style.position = "relative";
 
