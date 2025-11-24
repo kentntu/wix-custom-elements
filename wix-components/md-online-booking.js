@@ -26,9 +26,7 @@ class MdOnlineBookingCustomElement extends HTMLElement {
   }
 
   renderBookingComponent(data = {}) {
-    const base = `${
-      data.baseUrl ?? "https://test.mechanicdesk.com.au"
-    }/online-booking/index.html`;
+    const base = data.baseUrl ?? "https://test.mechanicdesk.com.au/online-booking/index.html";
     const token = data.token ?? "33c80969233e57bc7ada47858f05323f019dfa08";
     const backgroundColor = data.backgroundColor || "#FFFFFF";
     const textColor = data.textColor || "#000000";
