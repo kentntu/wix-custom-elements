@@ -1,4 +1,4 @@
-const defaultToken = "33c80969233e57bc7ada47858f05323f019dfa08"
+const defaultOnlineBookingToken = "33c80969233e57bc7ada47858f05323f019dfa08"
 const defaultOnlineBookingUrl = "https://test.mechanicdesk.com.au/online-booking/index.html"
 class MdOnlineBookingCustomElement extends HTMLElement {
   static get observedAttributes() {
@@ -29,7 +29,7 @@ class MdOnlineBookingCustomElement extends HTMLElement {
 
   renderBookingComponent(data = {}) {
     const base = data.onlineBookingUrl || defaultOnlineBookingUrl;
-    const token = data.token || defaultToken;
+    const token = data.token || defaultOnlineBookingToken;
     const backgroundColor = data.backgroundColor || "#FFFFFF";
     const textColor = data.textColor || "#000000";
     const buttonBackgroundColor = data.buttonBackgroundColor || "#1677ff";
