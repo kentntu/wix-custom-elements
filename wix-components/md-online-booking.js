@@ -123,7 +123,8 @@ class MdOnlineBookingCustomElement extends HTMLElement {
 
     // Hide loader when iframe loads
     let settled = false;
-    const clearAndHide = () => {
+    let clearAndHide = () => {
+      console.log("md-online-booking: clearAndHide called", { settled });
       if (settled) return;
       settled = true;
       if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
@@ -131,11 +132,13 @@ class MdOnlineBookingCustomElement extends HTMLElement {
     };
 
     iframe.addEventListener("load", () => {
+      console.log("md-online-booking: iframe load event", { src });
       // Try to detect real render completion when iframe is same-origin.
       // For Vue apps that hydrate/render client-side, the root div (e.g. #app)
       // will receive children only after the app's JS runs. If same-origin,
       // observe that root until it gets content; otherwise fall back.
       try {
+        console.log("md-online-booking: attempting same-origin DOM check");
         const doc = iframe.contentDocument || iframe.contentWindow.document;
         const root = doc.getElementById("app") || doc.getElementById("root") || doc.body;
 
@@ -146,19 +149,23 @@ class MdOnlineBookingCustomElement extends HTMLElement {
         };
 
         if (checkHasContent()) {
+          console.log("md-online-booking: root already has content, hiding loader");
           clearAndHide();
         } else if (root) {
           const obs = new MutationObserver((mutations, observer) => {
             if (checkHasContent()) {
+              console.log("md-online-booking: content detected via mutation");
               observer.disconnect();
               clearAndHide();
             }
           });
+          console.log("md-online-booking: observing root for content changes", { root });
           obs.observe(root, { childList: true, subtree: true, characterData: true });
 
           // safety: don't wait forever — max wait before clearing observer
           const maxRenderWait = 60000; // 1min
           const maxT = setTimeout(() => {
+            console.log("md-online-booking: maxRenderWait reached, hiding loader");
             try { obs.disconnect(); } catch (e) {}
             clearAndHide();
           }, maxRenderWait);
@@ -172,6 +179,7 @@ class MdOnlineBookingCustomElement extends HTMLElement {
           clearAndHide();
         }
       } catch (err) {
+        console.log("md-online-booking: cross-origin or error inspecting iframe document", err);
         // Cross-origin — cannot inspect DOM. Fall back to immediate hide.
         // Optionally you can add a small delay here if desired.
         clearAndHide();
@@ -182,6 +190,7 @@ class MdOnlineBookingCustomElement extends HTMLElement {
     const timeoutMs = 8000;
     const t = setTimeout(() => {
       if (settled) return;
+      console.log("md-online-booking: iframe timeout reached, showing fallback", { timeoutMs });
       // remove loader and show fallback message
       settled = true;
       if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
