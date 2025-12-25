@@ -70,7 +70,7 @@ class MdOnlineBookingCustomElement extends HTMLElement {
     container.style.width = "100%";
     container.style.height = "100%";
     container.style.maxWidth = "100%";
-    container.style.minHeight = "1050px";
+    container.style.minHeight = "1100px";
     container.style.boxSizing = "border-box";
     container.style.position = "relative";
 
@@ -131,7 +131,51 @@ class MdOnlineBookingCustomElement extends HTMLElement {
     };
 
     iframe.addEventListener("load", () => {
-      clearAndHide();
+      // Try to detect real render completion when iframe is same-origin.
+      // For Vue apps that hydrate/render client-side, the root div (e.g. #app)
+      // will receive children only after the app's JS runs. If same-origin,
+      // observe that root until it gets content; otherwise fall back.
+      try {
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        const root = doc.getElementById("app") || doc.getElementById("root") || doc.body;
+
+        const checkHasContent = () => {
+          if (!root) return true;
+          // consider it ready if there are element children or non-whitespace text
+          return root.childElementCount > 0 || (root.textContent && root.textContent.trim().length > 0);
+        };
+
+        if (checkHasContent()) {
+          clearAndHide();
+        } else if (root) {
+          const obs = new MutationObserver((mutations, observer) => {
+            if (checkHasContent()) {
+              observer.disconnect();
+              clearAndHide();
+            }
+          });
+          obs.observe(root, { childList: true, subtree: true, characterData: true });
+
+          // safety: don't wait forever — max wait before clearing observer
+          const maxRenderWait = 3000; // ms
+          const maxT = setTimeout(() => {
+            try { obs.disconnect(); } catch (e) {}
+            clearAndHide();
+          }, maxRenderWait);
+          // if cleared earlier, remove timeout
+          const originalClear = clearAndHide;
+          clearAndHide = () => {
+            if (maxT) clearTimeout(maxT);
+            originalClear();
+          };
+        } else {
+          clearAndHide();
+        }
+      } catch (err) {
+        // Cross-origin — cannot inspect DOM. Fall back to immediate hide.
+        // Optionally you can add a small delay here if desired.
+        clearAndHide();
+      }
     });
 
     // Timeout: if iframe doesn't load in time (blocked by X-Frame-Options), show fallback link
