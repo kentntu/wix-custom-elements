@@ -123,16 +123,26 @@ class MdOnlineBookingCustomElement extends HTMLElement {
 
     // Hide loader when iframe loads
     let settled = false;
+    let t = null;
     let clearAndHide = () => {
       console.log("md-online-booking: clearAndHide called", { settled });
       if (settled) return;
       settled = true;
+      if (t) {
+        clearTimeout(t);
+        t = null;
+      }
       if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
       if (fallback && fallback.style) fallback.style.display = "none";
     };
 
     iframe.addEventListener("load", () => {
       console.log("md-online-booking: iframe load event", { src });
+      if (t) {
+        console.log("md-online-booking: clearing fallback timeout due to load event");
+        clearTimeout(t);
+        t = null;
+      }
       // Try to detect real render completion when iframe is same-origin.
       // For Vue apps that hydrate/render client-side, the root div (e.g. #app)
       // will receive children only after the app's JS runs. If same-origin,
@@ -188,7 +198,7 @@ class MdOnlineBookingCustomElement extends HTMLElement {
 
     // Timeout: if iframe doesn't load in time (blocked by X-Frame-Options), show fallback link
     const timeoutMs = 8000;
-    const t = setTimeout(() => {
+    t = setTimeout(() => {
       if (settled) return;
       console.log("md-online-booking: iframe timeout reached, showing fallback", { timeoutMs });
       // remove loader and show fallback message
