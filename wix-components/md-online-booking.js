@@ -127,7 +127,6 @@ class MdOnlineBookingCustomElement extends HTMLElement {
     let graceT = null;
     let fallbackShown = false;
     let clearAndHide = () => {
-      console.log("md-online-booking: clearAndHide called", { settled, fallbackShown });
       if (settled) return;
       settled = true;
       if (t) {
@@ -144,15 +143,12 @@ class MdOnlineBookingCustomElement extends HTMLElement {
     };
 
     iframe.addEventListener("load", () => {
-      console.log("md-online-booking: iframe load event", { src, fallbackShown });
       // clear primary timeout and any grace timers
       if (t) {
-        console.log("md-online-booking: clearing primary timeout due to load event");
         clearTimeout(t);
         t = null;
       }
       if (graceT) {
-        console.log("md-online-booking: clearing grace timeout due to load event");
         clearTimeout(graceT);
         graceT = null;
       }
@@ -170,15 +166,13 @@ class MdOnlineBookingCustomElement extends HTMLElement {
       else if (effectiveType.includes("3g")) timeoutMs = 30000;
     }
     const graceMs = 5000; // small extra delay before showing fallback
-    console.log("md-online-booking: using timeout settings", { effectiveType, timeoutMs, graceMs });
+    
 
     t = setTimeout(() => {
       if (settled) return;
-      console.log("md-online-booking: primary timeout reached, starting grace delay", { timeoutMs, graceMs });
       // start grace timer; load within this window will cancel it
       graceT = setTimeout(() => {
-        if (settled) return;
-        console.log("md-online-booking: grace delay expired, showing fallback");
+          if (settled) return;
         fallbackShown = true;
         if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
         if (fallback) fallback.style.display = "block";
