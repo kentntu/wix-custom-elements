@@ -157,7 +157,7 @@ class MdOnlineBookingCustomElement extends HTMLElement {
           obs.observe(root, { childList: true, subtree: true, characterData: true });
 
           // safety: don't wait forever — max wait before clearing observer
-          const maxRenderWait = 3000; // ms
+          const maxRenderWait = 60000; // 1min
           const maxT = setTimeout(() => {
             try { obs.disconnect(); } catch (e) {}
             clearAndHide();
