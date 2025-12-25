@@ -124,6 +124,7 @@ class MdOnlineBookingCustomElement extends HTMLElement {
     // Hide loader when iframe loads
     let settled = false;
     let t = null;
+    let graceT = null;
     let fallbackShown = false;
     let clearAndHide = () => {
       console.log("md-online-booking: clearAndHide called", { settled, fallbackShown });
@@ -133,6 +134,10 @@ class MdOnlineBookingCustomElement extends HTMLElement {
         clearTimeout(t);
         t = null;
       }
+      if (graceT) {
+        clearTimeout(graceT);
+        graceT = null;
+      }
       if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
       if (fallback && fallback.style) fallback.style.display = "none";
       fallbackShown = false;
@@ -140,82 +145,51 @@ class MdOnlineBookingCustomElement extends HTMLElement {
 
     iframe.addEventListener("load", () => {
       console.log("md-online-booking: iframe load event", { src, fallbackShown });
+      // clear primary timeout and any grace timers
       if (t) {
-        console.log("md-online-booking: clearing fallback timeout due to load event");
+        console.log("md-online-booking: clearing primary timeout due to load event");
         clearTimeout(t);
         t = null;
       }
-      if (fallbackShown) {
-        console.log("md-online-booking: load arrived after fallback shown — will hide fallback if content ready");
+      if (graceT) {
+        console.log("md-online-booking: clearing grace timeout due to load event");
+        clearTimeout(graceT);
+        graceT = null;
       }
-      // Try to detect real render completion when iframe is same-origin.
-      // For Vue apps that hydrate/render client-side, the root div (e.g. #app)
-      // will receive children only after the app's JS runs. If same-origin,
-      // observe that root until it gets content; otherwise fall back.
-      try {
-        console.log("md-online-booking: attempting same-origin DOM check");
-        const doc = iframe.contentDocument || iframe.contentWindow.document;
-        const root = doc.getElementById("app") || doc.getElementById("root") || doc.body;
-
-        const checkHasContent = () => {
-          if (!root) return true;
-          // consider it ready if there are element children or non-whitespace text
-          return root.childElementCount > 0 || (root.textContent && root.textContent.trim().length > 0);
-        };
-
-        if (checkHasContent()) {
-          console.log("md-online-booking: root already has content, hiding loader");
-          clearAndHide();
-        } else if (root) {
-          const obs = new MutationObserver((mutations, observer) => {
-            if (checkHasContent()) {
-              console.log("md-online-booking: content detected via mutation");
-              observer.disconnect();
-              clearAndHide();
-            }
-          });
-          console.log("md-online-booking: observing root for content changes", { root });
-          obs.observe(root, { childList: true, subtree: true, characterData: true });
-
-          // safety: don't wait forever — max wait before clearing observer
-          const maxRenderWait = 60000; // 1min
-          const maxT = setTimeout(() => {
-            console.log("md-online-booking: maxRenderWait reached, hiding loader");
-            try { obs.disconnect(); } catch (e) {}
-            clearAndHide();
-          }, maxRenderWait);
-          // if cleared earlier, remove timeout
-          const originalClear = clearAndHide;
-          clearAndHide = () => {
-            if (maxT) clearTimeout(maxT);
-            originalClear();
-          };
-        } else {
-          clearAndHide();
-        }
-      } catch (err) {
-        console.log("md-online-booking: cross-origin or error inspecting iframe document", err);
-        // Cross-origin — cannot inspect DOM. Fall back to immediate hide.
-        // Optionally you can add a small delay here if desired.
-        clearAndHide();
-      }
+      // simply hide loader/fallback on load — content check removed (cross-origin)
+      clearAndHide();
     });
 
-    // Timeout: if iframe doesn't load in time (blocked by X-Frame-Options), show fallback link
-    const timeoutMs = 8000;
+    // Timeout: if iframe doesn't load in time, show fallback after a grace delay.
+    // Use Network Information API (when available) to adjust timeout on slow networks.
+    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const effectiveType = connection && connection.effectiveType;
+    let timeoutMs = 8000;
+    if (effectiveType) {
+      if (effectiveType.includes("2g") || effectiveType === "slow-2g") timeoutMs = 20000;
+      else if (effectiveType.includes("3g")) timeoutMs = 15000;
+    }
+    const graceMs = 2000; // small extra delay before showing fallback
+    console.log("md-online-booking: using timeout settings", { effectiveType, timeoutMs, graceMs });
+
     t = setTimeout(() => {
       if (settled) return;
-      console.log("md-online-booking: iframe timeout reached, showing fallback", { timeoutMs });
-      // show fallback but do not mark settled — allow load to override
-      fallbackShown = true;
-      if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
-      if (fallback) fallback.style.display = "block";
+      console.log("md-online-booking: primary timeout reached, starting grace delay", { timeoutMs, graceMs });
+      // start grace timer; load within this window will cancel it
+      graceT = setTimeout(() => {
+        if (settled) return;
+        console.log("md-online-booking: grace delay expired, showing fallback");
+        fallbackShown = true;
+        if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
+        if (fallback) fallback.style.display = "block";
+      }, graceMs);
     }, timeoutMs);
 
     // Clean up timer when element is removed
     const observer = new MutationObserver(() => {
       if (!document.contains(this)) {
-        clearTimeout(t);
+        if (t) clearTimeout(t);
+        if (graceT) clearTimeout(graceT);
         observer.disconnect();
       }
     });
