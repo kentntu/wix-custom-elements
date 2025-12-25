@@ -124,8 +124,9 @@ class MdOnlineBookingCustomElement extends HTMLElement {
     // Hide loader when iframe loads
     let settled = false;
     let t = null;
+    let fallbackShown = false;
     let clearAndHide = () => {
-      console.log("md-online-booking: clearAndHide called", { settled });
+      console.log("md-online-booking: clearAndHide called", { settled, fallbackShown });
       if (settled) return;
       settled = true;
       if (t) {
@@ -134,14 +135,18 @@ class MdOnlineBookingCustomElement extends HTMLElement {
       }
       if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
       if (fallback && fallback.style) fallback.style.display = "none";
+      fallbackShown = false;
     };
 
     iframe.addEventListener("load", () => {
-      console.log("md-online-booking: iframe load event", { src });
+      console.log("md-online-booking: iframe load event", { src, fallbackShown });
       if (t) {
         console.log("md-online-booking: clearing fallback timeout due to load event");
         clearTimeout(t);
         t = null;
+      }
+      if (fallbackShown) {
+        console.log("md-online-booking: load arrived after fallback shown — will hide fallback if content ready");
       }
       // Try to detect real render completion when iframe is same-origin.
       // For Vue apps that hydrate/render client-side, the root div (e.g. #app)
@@ -201,8 +206,8 @@ class MdOnlineBookingCustomElement extends HTMLElement {
     t = setTimeout(() => {
       if (settled) return;
       console.log("md-online-booking: iframe timeout reached, showing fallback", { timeoutMs });
-      // remove loader and show fallback message
-      settled = true;
+      // show fallback but do not mark settled — allow load to override
+      fallbackShown = true;
       if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
       if (fallback) fallback.style.display = "block";
     }, timeoutMs);
