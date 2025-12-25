@@ -166,10 +166,10 @@ class MdOnlineBookingCustomElement extends HTMLElement {
     const effectiveType = connection && connection.effectiveType;
     let timeoutMs = 8000;
     if (effectiveType) {
-      if (effectiveType.includes("2g") || effectiveType === "slow-2g") timeoutMs = 20000;
-      else if (effectiveType.includes("3g")) timeoutMs = 15000;
+      if (effectiveType.includes("2g") || effectiveType === "slow-2g") timeoutMs = 30000;
+      else if (effectiveType.includes("3g")) timeoutMs = 30000;
     }
-    const graceMs = 2000; // small extra delay before showing fallback
+    const graceMs = 5000; // small extra delay before showing fallback
     console.log("md-online-booking: using timeout settings", { effectiveType, timeoutMs, graceMs });
 
     t = setTimeout(() => {
